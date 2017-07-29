@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="./img/favicon.ico">
+
+	<title>Compound Investement Calculator</title>
+
+        <link href="./css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="./css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link rel="stylesheet" href="./css/highlight.css">
+        <link href="./css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="calculator/">Compound Investement Calculator</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="calculator/">Calculator</a>
+                </li>
+            
+            
+            
+                <li class="active">
+                    <a href=".">Index Fund Application</a>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                <li >
+                    <a rel="next" href="calculator/">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li class="disabled">
+                    <a rel="prev" >
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#index-fund-application">Index Fund Application</a></li>
+        
+            <li><a href="#loading-data">Loading Data</a></li>
+        
+            <li><a href="#plotting-with-plotly">Plotting with Plotly</a></li>
+        
+            <li><a href="#multiplier-heat-map">Multiplier Heat Map</a></li>
+        
+            <li><a href="#compound-multiplier">Compound Multiplier</a></li>
+        
+            <li><a href="#compound-multiplier-optimizer">Compound Multiplier Optimizer</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<h1 id="index-fund-application">Index Fund Application</h1>
+<p>The index fund application is a python module for the purpose of graphing the S and P 500, and various data visualizations it.<br>
+The code is built on the SciPy statistics python stack; python 3.4, SciPy, NumPy, anaconda for the package manager, and plotly for the graphs.<br></p>
+<hr />
+<p><strong>NOTE</strong></p>
+<p>None of this will work unless all applicable packages have been downloaded, and a plotly account is created; plotly credentials must be then hard coded into the <strong>init</strong> of the plot graph.  SciPy is a great package but requires the anaconda package manager to work.</p>
+<hr />
+<h2 id="loading-data">Loading Data</h2>
+<p>The Data class loads in all the data.  Creating a data class instance loads all the data for the remainder of the project, minimizing run time by requiring just one call for multiple uses.  Surprisingly (or maybe not so much) loading the data into python takes the second longest time of all analysis functions and graphing.  The data instance loads in 5 sources of data with 4 different methods:</p>
+<ul>
+<li>
+<p><code>loadSandP(self)</code>:  loads the s and p 500 data from SandP.csv.  the data must have the same name and format of the SandP.csv file.  Returns a dictionary of date, return % values.
+                      Return percent is formatted number, like 2.15 for 2.15% return that year.</p>
+</li>
+<li>
+<p><code>loadInflation(self)</code>:  loads the inflation data from inflation.csv.  Same format as the S and P data</p>
+</li>
+<li>
+<p><code>loadGold(self)</code>:  loads the gold data from gold.csv.  Same format as the S and P data</p>
+</li>
+<li>
+<p><code>loadSafe(self)</code>:  loads the 10 year T bill data from safe.csv.  Same format as the S and P data</p>
+</li>
+</ul>
+<p>For the data to load properly, each csv must be named properly (as denoted above) and be in the same directory as the SandP.py file.<br>
+generate(self, n=40, to=None, frm= None)<br>
+takes in python datetime object arguments to and frm, generate picks a n year span, returns inflation, s and p growth, dividends, bond, and tbill prices for each year in the given span.
+The format returned looks like this:</p>
+<pre><code>   [ { 'year':year, 'inflation':inflation', 'interest':interest, 'dividend':dividend}, ...]
+</code></pre>
+
+<p>after a couple speed hacks, it runs in O(nlogn) time.  Only works if there aren't holes in the data.</p>
+<h2 id="plotting-with-plotly">Plotting with Plotly</h2>
+<p>All the plotting is done through the Plot class, using plotly.  However, plotly is a (free) service, and usage requires a user API key.  I have removed mine for my own security, but left a comment in the init of the Plot class where, if you are so inclined, you may put your key to make the code work.
+Plotly can generate plots offline or online, so I have provided a class variable, online to set weather or not the graphs are generated to plotly’s online workspace or locally.
+The following methods are ones I used to make all my charts, they act as wrappers around the plottly API that I can feed regular python data to.</p>
+<h3 id="simple-line-plot">Simple Line Plot</h3>
+<pre><code># takes data in list of lists:
+# [[x1,y1], ... , [xn,yn]]
+LinePlotSimple(self,data,title,xaxis,yaxis, filename=&quot;basic-line&quot;)
+</code></pre>
+
+<p>Takes a list of [x,y] values, plots them.  requires x and y axis names and a title.</p>
+<h3 id="multi-line-plot">Multi Line Plot</h3>
+<pre><code># takes multiple series of data (in same chart).  X data is a list of x values. y data series is
+# [{'data':[y11, ..., y1n], 'mode': mode1, 'name': series name 1}, .. , {'data':[ym1, ..., ymn], 'mode': mode m, 'name': series name m}]
+# modes: lines, or lines + markers, or markers.
+LinePlot(self, x, y, title, xaxis, yaxis, filename=&quot;multi-series-lines&quot;):
+</code></pre>
+
+<p>Generates a more complicated line plot, one with multiple series (but the same x values).<br>
+x is a simple list of x values and y is a list of dictionaries with each data series.<br></p>
+<h3 id="line-plot-interval">Line Plot Interval</h3>
+<pre><code>LinePlotInterval(self, y, yreg=None, title=&quot;Chart Title&quot;, xaxis=&quot;X-Axis&quot;, yaxis=&quot;Y-Axis&quot;, filename=&quot;Linechart-range.html&quot;)
+</code></pre>
+
+<p>Line plot interval plots a line plot (or multiple line plots) with or without an interval around them.  That is, a shaded region around the line provided, that is defined by a list of x and y coordinates.  y in this case is a list of data series, which are structured below:</p>
+<pre><code>{
+    'x': list of x values,
+    'upper': list of upper y values,
+    'lower': list of lower y values,
+    'data': list of y values,
+    'name': 'Safe+Index',
+    'fillcolor': 'rgba(255,0,0,.4)', # shaded region color
+    'color': 'rgb(0,0,0)' # data line color
+}
+</code></pre>
+
+<p>yreg is a list of data series that do not have a range (but also appear on the graph), and they are to be formatted like the data series in the multi line plot.</p>
+<h3 id="heat-map">Heat Map</h3>
+<pre><code># colormap is list of values and what color they should be.  For instance
+# [.5,[[0,1], hexcolor1], ... ,[[7,'+'], hexcolor1]]]. 
+def heatmap(self,x,y,z,colormap=None, title='Title', ticks='Ticks',xaxis='Xlab', yaxis='Ylab', filename='heatmap.html')
+</code></pre>
+
+<p>The x,y, and z data are each basic python lists, of equal length.  The Heatmap produced will take an i for 0 - length-of-lists, and for each i graph the corresponding x[i],y[i] with heat value z[i].  In other words, for a 10 by 10 grid, each x, y, and z list should be of length 100.<br>
+If the colormap is left at none, plotly with take its best guess as to how you want the "heat" of the map to be represented ( the color of the squares).  Usually, it looks nice, however, if you want specific colors for specific data, you'll need the colormap.  Specifically, if you want all data points with z values between 5 and 10 to be red, add [[5,10], 'red'] to the colormap.  Don't forget to define a color definition for all ranges of data, if you choose to use the colormap.</p>
+<h3 id="histogram">Histogram</h3>
+<pre><code># takes list of data points, produces histogram.  Also fits an exp distr., if exp=True
+Histogram(self,data, title=&quot;No Title&quot;, xaxis=&quot;No Title&quot;, yaxis=&quot;No Title&quot;, filename=&quot;Histogram&quot;, exp=False)
+</code></pre>
+
+<p>The simplest graph: just give it a list of data points, and it spits out a histogram.  It fits a gamma distribution (within the exp family, easiest for SciPy to fit) using SciPy and NumPy, if exp=True</p>
+<h2 id="multiplier-heat-map">Multiplier Heat Map</h2>
+<p>The Multiplier function, floating freely outside a class in the module, is the meat of this module.  It Produces a heatmap of multipliers, comparing date of entry vs date of exit for each year in the data.  The multipliers are how many times your initial investment you'll get back</p>
+<h3 id="basic-usage">Basic Usage</h3>
+<pre><code># here we make a heat map of the multiplier of your money given the data provided, based on the
+# state, income bracket, and fee provided
+Multiplier(data, state, incomebracket, fee=None, title=None)
+</code></pre>
+
+<ul>
+<li>
+<p>data: the same data produced by a call to the generate() method of the data class.  It is built for use by this data, but does not require it.  Other data that is similarly formatted may also be use.</p>
+</li>
+<li>
+<p>state: only takes 'Texas' or 'California', as they are the 2 ends of the spectrum of capital gains taxes.</p>
+</li>
+<li>
+<p>incomebracket: 'middle' or 'high', represents the income bracket to be taxed at.  </p>
+</li>
+<li>
+<p>fee: the management fee on the fund (applied to running total, every year).  Should be given as 2 for a rate of 2%, or .5 for a rate of .5%.  Defaults to .05%, Vanguard’s index fund fee.</p>
+</li>
+<li>
+<p>title: title of the plot.  Default depends on state and income bracket given.</p>
+</li>
+</ul>
+<p>If using custom data, or just want more flexibility then the arguments provide, it's easy to change the options yourself.  The individual functions for all operations defined in the investment calculator are defined and easy to change and fit with custom values.  Each function defined in the Multiplier function takes an additional argument, data, and then for each data range in the heat map, a wrapper is applied to the induvial functions that provides them the data, and returns a function of just the period (except CGtaxes function.)</p>
+<h3 id="example">Example</h3>
+<pre><code># first, we'll generate the yearly inflation, returns, gold, etc., from 1875 to 1905
+P = Data()
+data1 = P.generate(frm=datetime.strptime('1875-01-01', '%Y-%m-%d'),
+                   to=datetime.strptime('1905-01-01', '%Y-%m-%d'))
+# for the middle class, in Texas, the following 2 heatmaps compare the effect of a 2% fee to that of a normal
+#.05% fee
+Multiplier(data4,state=&quot;Texas&quot;, incomebracket='middle', title=&quot;.05% Fee&quot;)
+Multiplier(data4,state=&quot;Texas&quot;, incomebracket='middle', fee=2, title=&quot;2% Fee&quot;)
+</code></pre>
+
+<h2 id="compound-multiplier">Compound Multiplier</h2>
+<p>The Compound Multiplier function produces 2 shaded line plots and a histogram: the shaded line plots are the n year multiplier (one with no taxes, one with an appropriate tax for the given state), for each x.  For instance, when n = 40, the y corresponding to each x is the 40 year multiplier starting in that year.  This histogram is of each of the n year multipliers. </p>
+<h3 id="basic-usage_1">Basic Usage</h3>
+<pre><code># allData should be the entire range of data provided in the format of calling generate in the data class.
+# length of data must be greater then n.
+# n = period of multiplier we are looking at
+# state and income bracket determine the taxes applied
+# fee defaults to .05%
+CompundMultiplier(allData, n, state=&quot;Texas&quot;, incomebracket=&quot;middle&quot;, fee=None)
+</code></pre>
+
+<ul>
+<li>
+<p>allData: the same data produced by a call to the generate() method of the data class.  It is built for use by this data, but does not require it.  Other data that is similarly formatted may also be use.  Should be all the data, or at least the length of data should be greater than n</p>
+</li>
+<li>
+<p>n: the number of years being compounded, for all possible n length spans in the allData.  Must be less then the length of allData</p>
+</li>
+<li>
+<p>state: only takes 'Texas' or 'California', as they are the 2 ends of the spectrum of capital gains taxes.</p>
+</li>
+<li>
+<p>incomebracket: 'middle' or 'high', represents the income bracket to be taxed at.  </p>
+</li>
+<li>
+<p>fee: the management fee on the fund (applied to running total, every year).  Should be given as 2 for a rate of 2%, or .5 for a rate of .5%.  Defaults to .05%, Vanguard’s index fund fee.</p>
+</li>
+<li>
+<p>title: title of the plot.  Default depends on state and income bracket given.</p>
+</li>
+</ul>
+<p>If using custom data, or just want more flexibility then the arguments provide, it's easy to change the options yourself.  The individual functions for all operations defined in the investment calculator are defined and easy to change and fit with custom values.  Each function defined in the Multiplier function takes any number of additional arguments (in dictionary form **kwargs), and then for each data range in the heat map, a wrapper is applied to the induvial functions that provides them the arguments, and returns a function of just the period (except CGtaxes function.)</p>
+<p>Please note, the number of graphs being plotted does not affect the run time</p>
+<h3 id="example_1">Example</h3>
+<pre><code># first, we'll generate the yearly inflation, returns, gold, etc., from 1875 to 1905
+P = Data()
+dataAll = P.generate(frm=datetime.strptime('1875-01-01', '%Y-%m-%d'),
+                       to=datetime.strptime('2016-01-01', '%Y-%m-%d'))
+CompundMultiplier(allData=dataAll, n=40)
+</code></pre>
+
+<h2 id="compound-multiplier-optimizer">Compound Multiplier Optimizer</h2>
+<p>Code in Optimize.py<br>
+Therefore the compound multiplier takes so long: for each data set, it optimizes the formula using i for the current period, and n as given in the compound multiplier argument:<br>
+<script type="math/tex; mode=display"> [\alpha_{1}(i/n)]A + [\alpha_{2}(i/n)^{2}]A + [\beta_{1}(i/n)]B + [\beta_{2}(i/n)^{2}]B \\ s.t.\\ \alpha_{1} + \alpha_{2} + \beta_{1} + \beta_{2} = 1</script>
+where the alphas and betas were the variables to minmax, and A was the index fund return for period i, and B was the 10-year T-bill yield for period i.
+I didn't use <script type="math/tex"> \alpha_{1}(i/n) + \alpha_{2}(i/n)^{2} + \beta_{1}(i/n) + \beta_{2}(i/n)^{2} = 1 \space \forall i</script>, a more accurate condition, because it would have yielded an over determined system; instead I used the weaker condition in the formula above and divided the rate for each period by a standardizing constant 
+<script type="math/tex; mode=display"> \phi = \frac{1}{\alpha_{1}(i/n) + \alpha_{2}(i/n)^{2} + \beta_{1}(i/n) + \beta_{2}(i/n)^{2}}  </script>
+so that i wasn't optimizing an un-realizable return, but had room for optimization.<br></p>
+<p>I optimized each rate with respect to the compound investment calculator function (fortunately, with some speed hacks, this runs in o(n) time or this would've taken quite a bit longer!) but quickly realized a Newtonian or range-space algorithm wasn't going to work.  Clearly the Jacobian and hessian are not well defined, and working with my feasible point calculation:
+<script type="math/tex; mode=display"> Ax=b \space constraints \\ A^{t} = (Y \space Z)\binom{R}{0} ; \space R^{t}v=b \space \implies \space A(Yv + Zw)=b \space \forall w</script> 
+Was going to be a pain in the ass.  Not only that, but small changes in and of the coefficients would not yield any noticeable effect in the multiplier; anything using hessians was a waste of time and any locally optimizing algorithm would almost always settle on the initial points provided; unless it was taking sizable steps.  I ended up using a basinhopping algorithm wrapping a SLSQP local minimization algorithum capped at 5 steps.  It would take large steps, and for each one, take 5 SLSQP steps locally (most of the time, returning the larger steps ending point, byt not always), approximately spanning the useable parts of the subspace of <script type="math/tex"> \mathbb{R}^{4} </script> I was interested in.  It works quite effectively; generating a large range between the min and max for the optimized coefficients.  All optimizations and calculations applied useing scipy and numpy. </p></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+            <center>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</center>
+        </footer>
+
+        <script src="./js/jquery-1.10.2.min.js"></script>
+        <script src="./js/bootstrap-3.0.3.min.js"></script>
+        <script src="./js/highlight.pack.js"></script>
+        <script>var base_url = '.';</script>
+        <script data-main="./mkdocs/js/search.js" src="./mkdocs/js/require.js"></script>
+        <script src="./js/base.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            From here you can search these documents. Enter
+                            your search terms below.
+                        </p>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                            </div>
+                        </form>
+                        <div id="mkdocs-search-results"></div>
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
