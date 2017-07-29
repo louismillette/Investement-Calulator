@@ -11,6 +11,13 @@ None of this will work unless all applicable packages have been downloaded, and 
 
 ---
 
+---
+**NOTE**
+
+For the code, go to https://github.com/louismillette/Investement-Calulator/tree/master
+
+---
+
 ## Loading Data
 
 The Data class loads in all the data.  Creating a data class instance loads all the data for the remainder of the project, minimizing run time by requiring just one call for multiple uses.  Surprisingly (or maybe not so much) loading the data into python takes the second longest time of all analysis functions and graphing.  The data instance loads in 5 sources of data with 4 different methods:

@@ -3,6 +3,13 @@
 The project consists of the original calculator, and the S and P 500 application of it.
 This page covers the application of the original investment calculator.
 
+---
+**NOTE**
+
+For the code, go to https://github.com/louismillette/Investement-Calulator/tree/master
+
+---
+
 ## Basic Usage
 
 The compound calculator, in compoundinvestement.py runs on python 3.4 but has no dependencies.
