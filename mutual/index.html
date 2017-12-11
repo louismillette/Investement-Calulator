@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Calculator - Compound Investement Calculator</title>
+        <title>Mutual Fund - Compound Investement Calculator</title>
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome-4.5.0.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -38,21 +38,21 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="./">Compound Investement Calculator</a>
+            <a class="navbar-brand" href="../calculator/">Compound Investement Calculator</a>
         </div>
 
         <!-- Expanded navigation -->
         <div class="navbar-collapse collapse">
                 <!-- Main navigation -->
                 <ul class="nav navbar-nav">
-                    <li class="active">
-                        <a href="./">Calculator</a>
+                    <li >
+                        <a href="../calculator/">Calculator</a>
                     </li>
                     <li >
                         <a href="..">Index Fund Application</a>
                     </li>
-                    <li >
-                        <a href="../mutual/">Mutual Fund</a>
+                    <li class="active">
+                        <a href="./">Mutual Fund</a>
                     </li>
                 </ul>
 
@@ -62,13 +62,13 @@
                         <i class="fa fa-search"></i> Search
                     </a>
                 </li>
-                    <li class="disabled">
-                        <a rel="next" >
+                    <li >
+                        <a rel="next" href="..">
                             <i class="fa fa-arrow-left"></i> Previous
                         </a>
                     </li>
-                    <li >
-                        <a rel="prev" href="..">
+                    <li class="disabled">
+                        <a rel="prev" >
                             Next <i class="fa fa-arrow-right"></i>
                         </a>
                     </li>
@@ -80,94 +80,63 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#compound-calculator">Compound Calculator</a></li>
-            <li><a href="#basic-usage">Basic Usage</a></li>
-            <li><a href="#example">Example</a></li>
+        <li class="main active"><a href="#reverse-engineering-mutual-funds">Reverse Engineering Mutual Funds</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<h1 id="compound-calculator">Compound Calculator</h1>
-<p>The project consists of the original calculator, and the S and P 500 application of it.
-This page covers the application of the original investment calculator.</p>
-<hr />
-<p><strong>NOTE</strong></p>
-<p>For the code, go to <a href="https://github.com/louismillette/Investement-Calulator/tree/master">here</a></p>
-<hr />
-<h2 id="basic-usage">Basic Usage</h2>
-<p>The compound calculator, in compoundinvestement.py runs on python 3.4 but has no dependencies.</p>
-<p>The compound function takes 8 arguments, and 1 optional argument:</p>
-<p>compund(A, alpha, infl, CGtaxes, dividends, divtaxes, fees, n,comma = True):</p>
-<ul>
-<li>
-<p><code>A:  A function that takes one argument, the nth period, and gives back how much is entering the fund
-    at the given period</code></p>
-</li>
-<li>
-<p><code>alpha: A function that takes one argument, period n, and returns the interest rate at the given period</code></p>
-</li>
-<li>
-<p><code>dividends:  A function that takes the period, n, and returns the dividend yield percentage; as in the 
-               percentage of the total investment that is received in dividends</code></p>
-</li>
-<li>
-<p><code>n:  The amount of time compounding (number of periods)</code></p>
-</li>
-<li>
-<p><code>infl:  A function that takes one argument, n, and gives back how much inflation is that period</code></p>
-</li>
-<li>
-<p><code>CGtaxes: A function that takes 3 required arguments:</code></p>
-<ul>
-<li><code>s: The amount initially invested</code></li>
-<li><code>e: The amount worth at the end</code></li>
-<li><code>n: the current period</code>
-<code>return the capital gains tax on that investment, in that particular period</code></li>
-</ul>
-</li>
-<li>
-<p><code>divtaxes: A function that takes one argument, n, and returns the dividend taxes in the period</code></p>
-</li>
-<li>
-<p>`comma(optional): if True, the returned number will be comma delimited
-All rates are to be given in the form of 1.06, for a rate of 6%.<br>
-All dividends are to be given in the form of .06, for a dividend of 6% of the initial investment<br>
-in the last year, no money is added, the money already compounding will continue to compound.<br></p>
-</li>
-</ul>
-<h2 id="example">Example</h2>
-<pre><code>def contribution(n):
-    if n == 0:
-        return 100000
-    else:
-        return 0
-        # return 5000 * (1.02 ** n)
-def IR(n):
-    if n &lt; 11:
-        return 1.04 + 4 * math.sin(n) / 100
-    else:
-        return 1.065 + 4 * math.sin(n) / 100
-def infl(n):
-    return 1.02
-# capital gains taxes
-# percent taxed on each contribution gains when sold (ALWAYS nominal) (assumes selling period at end of n periods)
-# s = initial amount, e = end amount, n = specific period
-def CGtaxes(s, e, n):
-    return 1.15
-# dividends returned
-def divs(n):
-    return .03
-# rate at which dividends are taxed
-def divtaxes(n):
-    return 1.15
-# Fees paid in each period.  This is calculated at returned percent times the current
-# value of investments (as calculated for an ETF of index fund).  Generally, a flat rate.
-def fees(n):
-    return 1 - .0077
-# Leaving comma=true, to return value formatted
-v = compund(A = contribution, alpha = IR, CGtaxes=CGtaxes, fees=fees, n=40, infl = infl, dividends=divs, divtaxes=divtaxes)
-print(v)
-# will return 848,004.78
+<h1 id="reverse-engineering-mutual-funds">Reverse Engineering Mutual Funds</h1>
+<p>Mutual Funds provided by banks and financial institutions like this one https://www.cibc.com/en/personal-banking/investments/mutual-funds/growth-funds/balanced-fund.html can be a bit misleading.  Instead of providing how much the fund grew in each year, they'll provide average compound returns for a handful of years.  In order to compare them to index funds that provide clearer information, one must parse out the information</p>
+<p>When you see something like "the 5 year compounded average is 5.7%" what is really being said is 
+<script type="math/tex; mode=display"> \frac{\prod_{i=1}^{5}(1 + r_{i}) - 1}{5} = 0.057 </script>
+</p>
+<p>where <script type="math/tex"> r_{i} </script> is the return in period i.  When multiple such expressions are given, multiple formulas must be satisfied simultaniously, giving us a good base to estimate what the missing returns might be.  For, say, a 30 year mutual fund with compounding averages given for 1,5,10, and 30 years, these formulas look like this:
+<script type="math/tex; mode=display"> r_{30} = \phi_{1} </script>
+<script type="math/tex; mode=display"> r_{25} \cdot r_{26} \cdot r_{27} \cdot r_{28} \cdot r_{29} \cdot r_{30} = \phi_{5} + 1  </script>
+<script type="math/tex; mode=display"> r_{20} \cdot r_{21} \cdot ... \cdot r_{30} = \phi_{10} + 1  </script>
+<script type="math/tex; mode=display"> r_{1} \cdot r_{2} \cdot ... \cdot r_{30} = \phi_{30} + 1  </script>
+</p>
+<p>Here, the phi's are the average compound rates given by the fund.  In this scenario, each equation can be solved in the simplest way possible by assuming all previously indefined rates are the same.  For the purpose of our mutual funds, this is as good a guess as any that satisfy the equations.  For the rest of this doc, i'll refer to <script type="math/tex"> r_{i} </script> instead of <script type="math/tex"> 1 + r_{i} </script> to make it clearer.  For each equation of the n most recent returns, d the set of aleardy defined rates, and u the set of undefined rates:</p>
+<p>
+<script type="math/tex; mode=display"> \frac{n \cdot \phi_{n} + 1}{\prod_{\forall d}r_{i}} = \prod_{\forall u} r_{j} \space\space where \space\space r_{i} = r_{j} \space \forall i,j \space in \space u </script>
+<script type="math/tex; mode=display">let \space\space \gamma = \frac{n \cdot \phi_{n} + 1}{\prod_{\forall d}\phi_{i}}</script>
+<script type="math/tex; mode=display"> r_{j} =  \sqrt[u]{\gamma} </script>
+</p>
+<p>Where that last root is the uth root of gamma (really the size of u).  So for each equation we have to work with, we can reverse engineer rates between each period of years given by the financial institution.  In python:</p>
+<pre><code>'''
+buildFund takes average yearly compounded rates, and fills in missing years, returning a &quot;best guess&quot; as
+to what the returns look like.
+Fundreturns: &lt;dict&gt; {1987:.059, 2017:.07, ...} keys are the year-to-present average compound returns
+         if the last year returns were 7%, it would be key:value of 2017:.07
+returns: list of dict: [{&quot;Date&quot;:1970-07-20, &quot;Relevent Returns&quot;:.05},...]
+'''
+def buildFund(Fundreturns):
+    dates = list(reversed(sorted(Fundreturns.keys())))
+    leng = int(dates[0]) - int(dates[-1]) + 1
+    keys = [str(ele) for ele in range(int(dates[-1]), int(dates[0]) + 1)]
+    returns = dict(zip(keys,[1 for _ in range(leng)]))
+    returns[dates[0]] = Fundreturns[dates[0]]
+    i = 0
+    while i &lt; len(dates):
+        i += 1
+        try:
+            dates[i]
+        except:
+            break
+        compounding = list(range(int(dates[i]), int(dates[0]) + 1))
+        ret =  {k: v for k, v in returns.items() if int(k) in compounding} # dict of our compounding dates
+        phi =  {k: v for k, v in ret.items() if v != 1} # dict of dates already processed by earlier compounding averages
+        unass_dates = [k for k, v in ret.items() if v == 1]
+        num = len(compounding) * (Fundreturns[dates[i]] - 1) + 1
+        denom = reduce(operator.mul, phi.values())
+        m = num/denom
+        rate = round(m**(1/(len(unass_dates))),7)
+        for date in unass_dates:
+            returns[date] = rate
+    retFormat = []
+    for k,v in returns.items():
+        retFormat.append({&quot;Date&quot;:k + '-12-01', &quot;Return Percent&quot;:v-1, &quot;Dividend Yield&quot;: 0})
+    return retFormat
 </code></pre></div>
         </div>
 
