@@ -87,22 +87,22 @@
 
 <h1 id="reverse-engineering-mutual-funds">Reverse Engineering Mutual Funds</h1>
 <p>Mutual Funds provided by banks and financial institutions like this one https://www.cibc.com/en/personal-banking/investments/mutual-funds/growth-funds/balanced-fund.html can be a bit misleading.  Instead of providing how much the fund grew in each year, they'll provide average compound returns for a handful of years.  In order to compare them to index funds that provide clearer information, one must parse out the information</p>
-<p>When you see something like "the 5 year compounded average is 5.7%" what is really being said is 
+<p>When you see something like "the 5-year compounded average is 5.7%" what is really being said is 
 <script type="math/tex; mode=display"> \frac{\prod_{i=1}^{5}(1 + r_{i}) - 1}{5} = 0.057 </script>
 </p>
-<p>where <script type="math/tex"> r_{i} </script> is the return in period i.  When multiple such expressions are given, multiple formulas must be satisfied simultaniously, giving us a good base to estimate what the missing returns might be.  For, say, a 30 year mutual fund with compounding averages given for 1,5,10, and 30 years, these formulas look like this:
+<p>where <script type="math/tex"> r_{i} </script> is the return in period i.  When multiple such expressions are given, multiple formulas must be satisfied simultaneously, giving us a good base to estimate what the missing returns might be.  For, say, a 30-year mutual fund with compounding averages given for 1,5,10, and 30 years, these formulas look like this:
 <script type="math/tex; mode=display"> r_{30} = \phi_{1} </script>
 <script type="math/tex; mode=display"> r_{25} \cdot r_{26} \cdot r_{27} \cdot r_{28} \cdot r_{29} \cdot r_{30} = 5 \cdot \phi_{5} + 1  </script>
 <script type="math/tex; mode=display"> r_{20} \cdot r_{21} \cdot ... \cdot r_{30} = 10 \cdot \phi_{10} + 1  </script>
 <script type="math/tex; mode=display"> r_{1} \cdot r_{2} \cdot ... \cdot r_{30} = 30 \cdot \phi_{30} + 1  </script>
 </p>
-<p>Here, the phi's are the average compound rates given by the fund.  In this scenario, each equation can be solved in the simplest way possible by assuming all previously indefined rates are the same.  For the purpose of our mutual funds, this is as good a guess as any that satisfy the equations.  For the rest of this doc, i'll refer to <script type="math/tex"> r_{i} </script> instead of <script type="math/tex"> 1 + r_{i} </script> to make it clearer.  For each equation of the n most recent returns, d the set of aleardy defined rates, and u the set of undefined rates:</p>
+<p>Here, the phi's are the average compound rates given by the fund.  In this scenario, each equation can be solved in the simplest way possible by assuming all previously undefined rates are the same.  For our mutual funds, this is as good a guess as any that satisfy the equations.  For the rest of this doc, I’ll refer to <script type="math/tex"> r_{i} </script> instead of <script type="math/tex"> 1 + r_{i} </script> to make it clearer.  For each equation of the n most recent returns, d the set of already defined rates, and u the set of undefined rates:</p>
 <p>
 <script type="math/tex; mode=display"> \frac{n \cdot \phi_{n} + 1}{\prod_{\forall d}r_{i}} = \prod_{\forall u} r_{j} \space\space where \space\space r_{i} = r_{j} \space \forall i,j \space in \space u </script>
 <script type="math/tex; mode=display">let \space\space \gamma = \frac{n \cdot \phi_{n} + 1}{\prod_{\forall d}r_{i}}</script>
 <script type="math/tex; mode=display"> r_{j} =  \sqrt[u]{\gamma} </script>
 </p>
-<p>Where that last root is the uth root of gamma (really the size of u).  So for each equation we have to work with, we can reverse engineer rates between each period of years given by the financial institution.  In python:</p>
+<p>Where that last root is the uth root of gamma (really the size of u).  So, for each equation we must work with, we can reverse engineer rates between each period of years given by the financial institution.  In python:</p>
 <pre><code>'''
 buildFund takes average yearly compounded rates, and fills in missing years, returning a &quot;best guess&quot; as
 to what the returns look like.
