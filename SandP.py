@@ -202,10 +202,10 @@ class Data():
         return values
 
 class Plot():
-    def __init__(self, online=True):
+    def __init__(self, online=False):
         self.online = online # change this to go online v offline
         # use your own username and api key
-        plotly.tools.set_credentials_file(username='USERNAME', api_key='API KEY')
+        plotly.tools.set_credentials_file(username='louismillette', api_key='v0ARg8oEXazysSV53A5h')
     # takes data in list of lists:
     # [[x1,y1], ... , [xn,yn]]
     def LinePlotSimple(self,data,title,xaxis,yaxis, filename="basic-line"):
@@ -759,7 +759,9 @@ if __name__ == '__main__':
     # time.sleep(2)
     # Multiplier(data6, state="Texas", incomebracket='middle')
 
+    # CompundMultiplier(allData=dataAll, n=10)
     CompundMultiplier(allData=dataAll, n=40)
+    # CompundMultiplier(allData=dataAll, n=40)
     # time.sleep(1)
     # MultiplierVan(data,state="Texas", incomebracket='middle', ir='new')
     # time.sleep(1)

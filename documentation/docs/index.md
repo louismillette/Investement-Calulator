@@ -1,26 +1,26 @@
 # Index Fund Application
 
-The index fund application is a python module for the purpose of graphing the S and P 500, and various data visualizations it.<br>
+The index fund application is a python module for the purpose of graphing the S and P 500, and various data visualizations of it.<br>
 The code is built on the SciPy statistics python stack; python 3.4, SciPy, NumPy, anaconda for the package manager, and plotly for the graphs.<br>
 
 
 ---
 **NOTE**
 
-None of this will work unless all applicable packages have been downloaded, and a plotly account is created; plotly credentials must be then hard coded into the __init__ of the plot graph.  SciPy is a great package but requires the anaconda package manager to work.
+None of this will not work unless all applicable packages have been downloaded, and a plotly account is created; plotly credentials must be then hard coded into the __init__ of the plot graph.  SciPy is a great package but requires the anaconda package manager to work.
 
 ---
 
 ---
 **NOTE**
 
-For the code, go to https://github.com/louismillette/Investement-Calulator/tree/master
+For the code, go to <a href="https://github.com/louismillette/Investement-Calulator/tree/master">here</a>
 
 ---
 
 ## Loading Data
 
-The Data class loads in all the data.  Creating a data class instance loads all the data for the remainder of the project, minimizing run time by requiring just one call for multiple uses.  Surprisingly (or maybe not so much) loading the data into python takes the second longest time of all analysis functions and graphing.  The data instance loads in 5 sources of data with 4 different methods:
+The Data class loads in all the data.  Creating a data class instance loads all the data for the remainder of the project, minimizing run time by requiring just one call for multiple uses.  Surprisingly (or maybe not so much) loading the data into python takes the second longest time of all analysis functions and graphing.  The data instance loads in 4 sources of data with 4 different methods:
 
 * `loadSandP(self)`:  loads the s and p 500 data from SandP.csv.  the data must have the same name and format of the SandP.csv file.  Returns a dictionary of date, return % values.
 					  Return percent is formatted number, like 2.15 for 2.15% return that year.
@@ -32,7 +32,7 @@ The Data class loads in all the data.  Creating a data class instance loads all 
 * `loadSafe(self)`:  loads the 10 year T bill data from safe.csv.  Same format as the S and P data
 
 For the data to load properly, each csv must be named properly (as denoted above) and be in the same directory as the SandP.py file.<br>
-generate(self, n=40, to=None, frm= None)<br>
+### generate(self, n=40, to=None, frm= None)<br>
 takes in python datetime object arguments to and frm, generate picks a n year span, returns inflation, s and p growth, dividends, bond, and tbill prices for each year in the given span.
 The format returned looks like this:
 ```
@@ -182,16 +182,16 @@ CompundMultiplier(allData=dataAll, n=40)
 ## Compound Multiplier Optimizer
 
 Code in Optimize.py<br>
-Therefore the compound multiplier takes so long: for each data set, it optimizes the formula using i for the current period, and n as given in the compound multiplier argument:<br>
+The compound multiplier takes so long because for each data set, it optimizes the formula using i for the current period, and n as given in the compound multiplier argument:<br>
 $$ [\alpha_{1}(i/n)]A + [\alpha_{2}(i/n)^{2}]A + [\beta_{1}(i/n)]B + [\beta_{2}(i/n)^{2}]B \\ s.t.\\ \alpha_{1} + \alpha_{2} + \beta_{1} + \beta_{2} = 1$$
-where the alphas and betas were the variables to minmax, and A was the index fund return for period i, and B was the 10-year T-bill yield for period i.
-I didn't use \( \alpha_{1}(i/n) + \alpha_{2}(i/n)^{2} + \beta_{1}(i/n) + \beta_{2}(i/n)^{2} = 1 \space \forall i\), a more accurate condition, because it would have yielded an over determined system; instead I used the weaker condition in the formula above and divided the rate for each period by a standardizing constant 
+where the alphas and betas are the variables to minmax,A is the index fund return for period i, and B is the 10-year T-bill yield for period i.
+I don't use \( \alpha_{1}(i/n) + \alpha_{2}(i/n)^{2} + \beta_{1}(i/n) + \beta_{2}(i/n)^{2} = 1 \space \forall i\), a more accurate condition, because it would yield an over determined system; instead I use the weaker condition in the formula above and divide the rate for each period by a standardizing constant 
 $$ \phi = \frac{1}{\alpha_{1}(i/n) + \alpha_{2}(i/n)^{2} + \beta_{1}(i/n) + \beta_{2}(i/n)^{2}}  $$
-so that i wasn't optimizing an un-realizable return, but had room for optimization.<br>
+so that i'm not optimizing an un-realizable return, but have room for optimization.<br>
 
-I optimized each rate with respect to the compound investment calculator function (fortunately, with some speed hacks, this runs in o(n) time or this would've taken quite a bit longer!) but quickly realized a Newtonian or range-space algorithm wasn't going to work.  Clearly the Jacobian and hessian are not well defined, and working with my feasible point calculation:
+I optimize each rate with respect to the compound investment calculator function (fortunately, with some speed hacks, this runs in o(n) time or this would've taken quite a bit longer!)A Newtonian or range-space algorithm doesn't work here;  clearly the Jacobian and hessian are not well defined, and working with my feasible point calculation:
 $$ Ax=b \space constraints \\ A^{t} = (Y \space Z)\binom{R}{0} ; \space R^{t}v=b \space \implies \space A(Yv + Zw)=b \space \forall w$$ 
-Was going to be a pain in the ass.  Not only that, but small changes in and of the coefficients would not yield any noticeable effect in the multiplier; anything using hessians was a waste of time and any locally optimizing algorithm would almost always settle on the initial points provided; unless it was taking sizable steps.  I ended up using a basinhopping algorithm wrapping a SLSQP local minimization algorithum capped at 5 steps.  It would take large steps, and for each one, take 5 SLSQP steps locally (most of the time, returning the larger steps ending point, byt not always), approximately spanning the useable parts of the subspace of \( \mathbb{R}^{4} \) I was interested in.  It works quite effectively; generating a large range between the min and max for the optimized coefficients.  All optimizations and calculations applied useing scipy and numpy. 
+Was going to be a pain in the ass.  Not only that, but small changes in and of the coefficients do not yield any noticeable effect in the multiplier; anything using hessians is a waste of time and any locally optimizing algorithm will almost always settle on the initial points provided; unless it is taking sizable steps.  I ended up using a basinhopping algorithm wrapping a SLSQP local minimization algorithum capped at 5 steps.  It takes large steps, and for each one, takes 5 SLSQP steps locally (most of the time, returning the larger steps ending point, byt not always), approximately spanning the useable parts of the subspace of \( \mathbb{R}^{4} \) I'm interested in.  It works quite effectively; generating a large range between the min and max for the optimized coefficients.  All optimizations and calculations applied useing scipy and numpy. 
 
 
 
