@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Home Made Annuity - Compound Investement Calculator</title>
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.5.0.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/highlight.css">
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        <script src="../js/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/highlight.pack.js"></script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="../calculator/">Compound Investement Calculator</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                    <li >
+                        <a href="../calculator/">Calculator</a>
+                    </li>
+                    <li >
+                        <a href="..">Index Fund Application</a>
+                    </li>
+                    <li >
+                        <a href="../mutual/">Mutual Fund</a>
+                    </li>
+                    <li class="active">
+                        <a href="./">Home Made Annuity</a>
+                    </li>
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                    <li >
+                        <a rel="next" href="../mutual/">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li class="disabled">
+                        <a rel="prev" >
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#home-made-annuity">Home Made Annuity</a></li>
+            <li><a href="#simplifying-assumptions">Simplifying Assumptions</a></li>
+            <li><a href="#general-model">General Model</a></li>
+            <li><a href="#dividends-and-fees">Dividends and Fees</a></li>
+            <li><a href="#tax-function">Tax Function</a></li>
+            <li><a href="#concise-model">Concise Model</a></li>
+            <li><a href="#algorithum">Algorithum</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h1 id="home-made-annuity">Home Made Annuity</h1>
+<p>The Home-Made Annuity is what I call an annuity made from another investment.  For example, investing a lump sum of money into the S and P 500 and pulling out $X every year.  The question I aim to answer is exactly how much should be deposited initially, given outflows of $X for n years, which is the present value of this annuity.</p>
+<h2 id="simplifying-assumptions">Simplifying Assumptions</h2>
+<p>This model makes the following assumptions:</p>
+<ul>
+<li>The money received each year from the annuity is adjusted for inflation, but constant in base year dollars. </li>
+<li>The present value of the annuity is positive</li>
+<li>The cash flows out are positive</li>
+</ul>
+<p>This model uses the following variable definitions:</p>
+<ul>
+<li>
+<script type="math/tex"> \alpha_{i} </script> is the return or interest in period i</li>
+<li>
+<script type="math/tex"> I_{i} </script> is the inflation in period i</li>
+<li>
+<script type="math/tex"> d_{i} </script> is the dividend payment in period i, after taxes (in dollars)</li>
+<li>
+<script type="math/tex"> f_{i} </script> is the fee payment at period i ( in dollars)</li>
+<li>
+<script type="math/tex"> a_{n} </script> is the present value of the annuity for n periods</li>
+<li>
+<script type="math/tex"> P </script> is the money required out of the fund, in base year dollars, every year</li>
+<li>
+<script type="math/tex"> A </script> is the money required out of the fund after accounting for taxes, in base year dollars, every year</li>
+</ul>
+<p>Let <script type="math/tex"> \phi_{i} </script> = <script type="math/tex"> \prod_{j=1}^{i}I_{j} </script> and <script type="math/tex"> \psi_{i} </script> = <script type="math/tex"> \prod_{j=1}^{i}\alpha_{j} </script>
+</p>
+<h2 id="general-model">General Model</h2>
+<p>The basic definition of the present value of an annuity: </p>
+<p>
+<script type="math/tex; mode=display"> a_{n,r} = \frac{1-(1+r)^{-n}}{r} </script>
+</p>
+<p>where n is the number of periods, and r is the rate (6% =&gt; r = 0.06).  This model is the closed form of the sum of annuity payments discounted at rate r in each period; however, it won't be needed.  The model takes into consideration the additional variates mentioned above.</p>
+<p>The objective is to find out the amount that is needed to invest today, to pull out $X, adjusted for inflation, each year for n years.  Let <script type="math/tex"> s_{i} </script> represent the annuity's value at period i, the initial investment, in 2 years, will be equal to:</p>
+<p>
+<script type="math/tex; mode=display"> s_{0} = a_{2} </script>
+<script type="math/tex; mode=display"> s_{1} = a_{2} \cdot \alpha_{1} + d_{1} - f_{1} - A \cdot I_{1} </script>
+<script type="math/tex; mode=display"> s_{2} = (a_{2} \cdot \alpha_{1} + d_{1} - f_{1} - A \cdot I_{1}) \cdot \alpha_{2} + d_{2} - f_{2} - A \cdot I_{1} \cdot I_{2} </script>
+</p>
+<p>This starts to get nasty quickly.  What’s happening is that every year the fund appreciates by value <script type="math/tex"> \alpha_{i} </script>, <script type="math/tex"> d_{i} </script> dividends enter the fund, <script type="math/tex"> f_{i} </script> feed leave the fund, and A <script type="math/tex"> \cdot </script> (some inflation) is withdrawn.  For this model the end value must equal 0, so that only what is required to make the yearly withdrawals is deposited in the beginning.  After doing this, the above formula can be solved in a more general sense to get an expression for <script type="math/tex"> a_{2} </script>.</p>
+<p>
+<script type="math/tex; mode=display"> s_{2} = (a_{2} \cdot \alpha_{1} + d_{1} - f_{1} - A \cdot I_{1}) \cdot \alpha_{2} + d_{2} - f_{2} - A \cdot I_{1} \cdot I_{2} = 0 </script>
+<script type="math/tex; mode=display"> \implies a_{2} \cdot \alpha_{1} \cdot \alpha_{2} + d_{1} \cdot \alpha_{2} - f_{1} \cdot \alpha_{2} - A \cdot I_{1} \cdot \alpha_{2} + d_{2} - f_{2} - A \cdot I_{1} \cdot I_{2} = 0 </script>
+<script type="math/tex; mode=display"> \implies a_{2} \cdot \alpha_{1} \cdot \alpha_{2} = A \cdot I_{1} \cdot I_{2} + f_{2} - d_{2} + A \cdot I_{1} \cdot \alpha_{2} + f_{1} \cdot \alpha_{2} - d_{1} \cdot \alpha_{2} </script>
+</p>
+<p>
+<script type="math/tex; mode=display"> \implies a_{2} = \frac{A \cdot I_{1} \cdot I_{2} + f_{2} - d_{2}}{\alpha_{1} \cdot \alpha_{2}} + \frac{ A \cdot I_{1} + f_{1} - d_{1} }{\alpha_{1}} = \frac{A \cdot \phi_{2} + f_{2} - d_{2}}{\psi_{2}} + \frac{ A \cdot \phi_{1} + f_{1} - d_{1} }{\psi_{1}} </script>
+<script type="math/tex; mode=display"> = \sum_{i=1}^{2} {\frac{A \cdot \phi_{i} + f_{i} - d_{i}}{\psi_{i}}} </script>
+</p>
+<p>For the 2-period scenario, this is a nice compact solution in the form of a sum.  What about the n period scenario?  A rigorous proof by mathematical induction would suffice, but I thought about it for a while and the n period sum makes sense logically, so I'll leave it as a proof by observations that</p>
+<p>
+<script type="math/tex; mode=display"> a_{n} = \sum_{i=1}^{n} {\frac{A \cdot \phi_{i} + f_{i} - d_{i}}{\psi_{i}}} </script>
+</p>
+<p>Not bad.  This looks strikingly similar to the original Present Value of an annuity formula, this one cannot be made compact as all rates are variable and change in this model (like they do in real life).  But there is still the problem of <script type="math/tex"> d_{i} and f_{i} </script>; recall that these numbers rely on the balance of the annuity lump sum in period i.  That is, they rely indirectly on <script type="math/tex"> a_{n} </script>.  This means there is no direct solution to the problem (or at least not one worth trying to derive, if it exists, it’s REALLY nasty), only a function of the solution that equals some constant.</p>
+<h2 id="dividends-and-fees">Dividends and Fees</h2>
+<p>How exactly is <script type="math/tex"> d_{i} </script> defined?  Recall that it is the amount of money deposited in dividends at period i, not the percent return.  This number is unknown!  The dividend yield as a percent of the amount that is currently invested is, however, know.  The dividends cannot be taken out as a percent return in period i in the model because taxes must be paid on them before re-investing, so they are defined to be cash payments.  They also cannot be applied like the value A because they change in each period and are directly proportional how much money is currently in the fund.  The model fee's  <script type="math/tex"> f_{i}</script>'s  are treated the same way, although the investor does not pay taxes on them.  It may be possible to view them more like the <script type="math/tex"> \alpha </script>'s, but as the math unfolds, it will become clear that this adds no run time to the model.  For my own convenience, if I were to build the model as the vendor of the annuity, this model makes it easy to shift the tax burden to the fee's collected.</p>
+<p>To find <script type="math/tex"> d_{i} </script>, <script type="math/tex"> B_{i} </script> must first be derived, the balance of the annuity in the bank at period i.  To define that, the dividends in the prior period and the fees in the prior period are first required.  Assuming that <script type="math/tex"> D_{i} </script>: the dividend yield in period i and <script type="math/tex"> F_{i}</script>: the fee percent in period i are know:</p>
+<p>
+<script type="math/tex; mode=display"> d_{i} = B_{i} \cdot D_{i} - t(\frac{B_{i} \cdot D_{i}}{\phi_{i}}) \cdot \phi_{i} </script>
+<script type="math/tex; mode=display"> f_{i} = B_{i} \cdot F_{i} </script>
+<script type="math/tex; mode=display"> B_{i} = (B_{i-1} - A \cdot \phi_{i-1} - f_{i-1} + d_{i-1}) \cdot \alpha_{i} </script>
+<script type="math/tex; mode=display"> B_{1} = \alpha_{1} \cdot a_{n} </script>
+</p>
+<h2 id="tax-function">Tax Function</h2>
+<p>Taxes, in the real world, are progressively calculated by tax brackets, and the tax function t() reflects this.  The bracket function is a non-differentiable, not continuous, strictly increasing step function.  The tax function takes dollars in the base year and returns the amount of dollars that would be paid in federal and state capital gains tax.  The dollar amount input has to be deflated to the base year, and the tax amount returned has to be inflated to the <script type="math/tex"> i^{th} </script> year when returned.  </p>
+<p>A vs P:  P is defined as the amount desired each year, and A as the actual amount that must be pulled out of the fund to make that happen (both in base year dollars).  So how is A defined in a formula?  </p>
+<p>
+<script type="math/tex; mode=display"> A = P + t(P) </script>
+</p>
+<p>Looks good.  Although, while taxes have been accounted for, tax on the taxes has not! If A is defined as above, less then P dollars will be returned.  The real formula is </p>
+<p>
+<script type="math/tex; mode=display"> A = P + t(P + t(P)) </script>
+</p>
+<p>Awesome problem solved.  Although ... now the tax on the tax increase that is being pulled out is increasing the tax, requiring more to be pulled out, to truly receive P dollars each year!  This will recurs infinitely, more, but a decreasing amount, of money will have to be pulled out of the fund to account for this difference; an approximation of A will have to suffice.</p>
+<p>
+<script type="math/tex; mode=display"> A = P + t(P + t(P + ...)) \approx  P + t(P + t(P + t(P + t(P + T(P))))) </script>
+</p>
+<p>Probably, accuracy around a tenth or hundreth of a cent is good enough.</p>
+<h2 id="concise-model">Concise Model</h2>
+<p>With all the pieces in place, the exact form of the model comes into focus.  Recall the general formula for the value of the annuity:</p>
+<p>
+<script type="math/tex; mode=display"> a_{n} = \sum_{i=1}^{n} {\frac{A \cdot \phi_{i} + f_{i} - d_{i}}{\psi_{i}}} </script>
+<script type="math/tex; mode=display"> \implies a_{n} - \sum_{i=1}^{n} {\frac{f_{i} - d_{i}}{\psi_{i}}} = \sum_{i=1}^{n} {\frac{A \cdot \phi_{i}}{\psi_{i}}} </script>
+</p>
+<p>Let <script type="math/tex"> \Phi(a_{n}) = a_{n} - \sum_{i=1}^{n} {\frac{f_{i} - d_{i}}{\psi_{i}}}</script>; this is the function of the solution, and the RHS of the equation above <script type="math/tex"> \sum_{i=1}^{n} {\frac{A \cdot \phi_{i}}{\psi_{i}}} </script> will remain constant with respect to the solution; so it can be calculated once and then let equal C.  The new formula to solve is</p>
+<p>
+<script type="math/tex; mode=display"> \Phi(a_{n}) = C </script>
+</p>
+<p>Instead of trying to solve it explicitly, because of the complexity, the proper <script type="math/tex"> a_{n} </script> may be found with logarithmic convergence using a (kind of)Newtonian algorithm for guessing the solution.  This is possible because <script type="math/tex"> a_{n} </script> is strictly positive and our objective function <script type="math/tex"> \Phi(a_{n}) </script> is strictly increasing.</p>
+<p>I've written out the general form of the solution algorithm in sudo-python.</p>
+<h2 id="algorithum">Algorithum</h2>
+<pre><code># first, calculate phi and psi (doable in o(n) time for number of periods), hold on to them
+# next calculate C with this function, hold on to it as well.
+def function1:
+    C = 0
+    for i in range(1,n+1):
+        C += (A * phi[i])/psi[i]
+    return C
+
+# for our best guess, a_n
+def function2:
+    S2 = 0
+    f = [0]
+    d = [0]
+    B = [alpha_1 * a_n]
+    for i in range(1,n+1):
+        B[i] = alpha[i]*(B[i-1] - A*phi[i-1] - f[i-1] + d[i-1])
+        f[i] = B[i] * F[i]
+        d[i] = B[i] * D[i] - t(B[i]*D[i]/phi[i])*phi[i]
+        S2 += (f[i]-d[i])/psi[i]
+    return S2
+
+# make guesses until we get it right, narrow down choices logarithmically.
+def function3:
+    lowInitial = .01 # a reasonable lowest guess of the anuitys value
+    highInitial = A * n * 10 # 10 times how much we're taking out.  Very high.
+    lowGuess = function2(lowInitial)
+    highGuess = function2(highInitial)
+    while 1:
+        newInitial = (highInitial + lowInitial)/2
+        newGuess = function2(newInitial)
+        if abs(newGuess-highGuess) &gt; abs(newGuess-lowGuess):
+            highInitial = newInitial
+        else:
+            lowInitial = newInitial
+        # precision down to 1/1000 of a cent.  We can change this precision to improve performance
+        if newGuess - C &lt; .00001:
+            return newGuess
+</code></pre></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>var base_url = '..';</script>
+        <script src="../js/base.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../search/require.js"></script>
+        <script src="../search/search.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Keyboard Shortcuts</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td><kbd>&larr;</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td><kbd>&rarr;</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    </body>
+</html>
