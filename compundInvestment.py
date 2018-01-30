@@ -14,7 +14,7 @@ __author__ = "Louis Millette"
 __copyright__ = "Copyright 2017, ME"
 __credits__ = ["Louis_Millette"]
 __license__ = "Use freely, credit me"
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 __maintainer__ = "Louis Millette"
 __email__ = "louismillette1@edu.uwaterloo.ca"
 __status__ = "Production"
@@ -57,14 +57,14 @@ compund(A, alpha, infl, CGtaxes, dividends, divtaxes, fees, n,comma = True) -> <
     to it, accounting for inflation that occurs over the time period.
 '''
 def compund(A, alpha, infl, CGtaxes, dividends, divtaxes, fees, n, comma=True):
-
     # product of interest rates(calculate in memory to keep runtime O(n))
     int_rep = int(n)
     poi = IRcompunder(alpha, fees, n)
     s = A(0)
-    all_taxes,all_fees, div_acc, infl_so_far = 0,0,[0],1
+    all_taxes,all_fees, div_acc, infl_so_far, contributions = 0,0,[0],1,0
     # contribution-interest accumulation
-    for m in range(0, int_rep):
+    m,taxable_gains = 0,0
+    while m < int_rep:
         # this is so we can actively regress our true tax payment brackets back to the base year
         # we are not accounting for inflaion here per period, we are only useing this to account for tax brackets adjusting to inflation
         infl_so_far *= infl(m)
@@ -80,27 +80,114 @@ def compund(A, alpha, infl, CGtaxes, dividends, divtaxes, fees, n, comma=True):
         else:
             div = dividends(m) * s
             divtax = div * (divtaxes(m, t=div, multiplier=1/infl_so_far) - 1)
-            s = (s * alpha(m) + div - divtax) * fees(m) + float(A(m+1))  # fees applied after div tax (assumption)
+            s = (s * alpha(m) + div - divtax) * fees(m) + float(A(m+1))*infl_so_far  # fees applied after div tax (assumption)
             all_taxes += divtax / infl_so_far
             all_fees += (s * alpha(m) + div - divtax) * (1 - fees(m)) / infl_so_far
             div_acc.append(div - divtax) # we'll pay CG taxes on div reinvestement
-    # tax calculations (CG tax, div tax already accounted for)
-    taxable_gains = 0
-    for m in range(0, int_rep):
         # we won't tax dividends again.
-        taxable_gains += (A(m)+div_acc[m]) * (poi[m] - 1)
+        contributions += float(A(m + 1)) # we're adding the same amount in base year dollars every year
+        taxable_gains += (float(A(m+1))*infl_so_far + div_acc[m]) * (poi[m] - 1)
+        m += 1
+    # tax calculations (CG tax, div tax already accounted for)
     CGtax = taxable_gains * (CGtaxes(taxable_gains, multiplier=1/infl_so_far)-1)
+    CGtax = CGtax if CGtax > 0 else 0
     # print("Paid {} total in capital gains taxes".format(CGtax))
     all_taxes += CGtax/infl_so_far
     # print('paid {:,} in Capital Gains'.format(round(CGtax,2)))
     no_infl_total = round(s - CGtax, 2)
-    infl_t = 1
-    for m in range(0, int_rep-1):
-        infl_t *= infl(m)
-    total = round(no_infl_total / infl_t, 2)
+    total = round(no_infl_total / infl_so_far, 2)
+    contributions = round(contributions, 2)
     if comma == True:
         return "{:,}".format(total)
-    return total,all_taxes,all_fees
+    return total,all_taxes,all_fees, contributions
+
+'''
+annuity(A, alpha, infl, CGtaxes, dividends, divtaxes, fees, n,comma = True) -> <int>
+    P:  An int, the amount (in base year dollars) to be withdrawn each year.
+    alpha: A function that takes one argument, time, and returns the interest rate for that
+        time
+    dividends:  A function that takes time, and returns the dividend yield percentage
+    n:  The amount of time compounding (number of periods)
+    infl:  A function that takes one argument, time, and gives back how much inflation is that period
+    CGtaxes: the nominal tax rate on each contribution (to be given in base year dollars) when removed
+    divtaxes: tax rate on dividends earned in each period. function of period (n), optional argument t:
+              total dividends being paid on, and optional argument inn: amount of other income in this period
+    fees: function that takes time, and returns fee percent in that period.
+    inflMultiplier: (list of int) product of inflations up to the length of the list for each point in the list.
+                    first will be I1 2nd with be I1*I2, and last will be I1*I2*...*In.
+    alphaMultiplier: (list of int) product of returns up to the length of the list for each point in the list.
+                first will be a1 2nd with be a1*a2, and last will be a1*a2*...*an.
+
+    - All rates are to be given in the form of 1.06, for a rate of 6%.
+    - Starts removing amount yearly, starting after first appreciation and dividend payment.
+    - Money removed in each period is adjusted for inflation.  That is, the calculator will assume that
+      in the last period, your taking out what you took out in the first period, adjusted for n years of inflation.
+    - Anuity is a class instead of a function becuase of the number of moving parts and helpers.  The init, however,
+      acts as a function, executing appropriate functions internally and setting the result
+'''
+class Annuity():
+    def __init__(self, P, alpha, dividends, n, infl, CGtaxes, divtaxes):
+        # create class variables
+        self.alhpa = alpha
+        self.dividends = dividends
+        self.n = n
+        self.infl = infl
+        self.CGtaxes = CGtaxes
+        self.divtaxes = divtaxes
+        # generate psi/phi
+        self.psi = [1]
+        self.phi = [1]
+        for i in range(1,n+1):
+            self.psi.append(self.psi[i-1]*alpha[i])
+        for i in range(1,n+1):
+            self.phi.append(self.phi[i-1]*infl[i])
+        # generate A, the amount to take out every time before inflation
+        self.A = P
+        for i in range(20):
+            # 20 is arbitrary, simply a measure of accuracy
+            self.A = P + CGtaxes(self.A)
+        # Generate C, the RHS of the equation
+        self.C = self.calcConst(self.A, self.phi, self.psi, n)
+
+    # calculates the constant of the equation (RHS), that wont change.
+    # we'll try to make the LHS match it
+    def calcConst(self, A, phi, psi, n):
+        c = sum([A*phi[i]/psi[i] for i in range(1,n+1)])
+        return c
+
+    # takes ANR (our guess at the present vvalue of the anuity) and spits out LHS of the equation
+    # ANR is perfect guess if it equals C exactly
+    def calcGuess(self,ANR, alpha, phi, psi, A, n, dividends, fees, divtaxes):
+        S = 0
+        f = [0]
+        d = [0]
+        B = [alpha[1]*ANR]
+        for i in range(1,n+1):
+            B.append(alpha(i)*(B[i-1]-A*phi[i-1]-f[i-1]+d[i-1]))
+            f.append(fees(i)*B[i])
+            d.append(B[i]*dividends(i)-divtaxes(B[i]*dividends(i)/phi[i])*phi[i])
+            S += (f[i]-d[i])/psi[i]
+        return S
+    # finds good solution in log time, returns that solution
+    # we'll take advantage of the strictly increaseing nature of the LHS function
+    # our guess's will take O(nlogm) for m "level of percision"
+    def gen_annuity(self):
+        lowInitial = .01 # a reasonable lowest guess of the anuitys value
+        highInitial = self.A * self.n * 10 # 10 times how much we're taking out.  Very high.
+        lowGuess = self.calcGuess(lowInitial, self.alhpa, self.phi, self.psi, self.A, self.n, self.dividends, self.fees, self.divtaxes)
+        highGuess = self.calcGuess(highInitial, self.alhpa, self.phi, self.psi, self.A, self.n, self.dividends, self.fees, self.divtaxes)
+        while 1:
+            newInitial = (highInitial + lowInitial)/2
+            newGuess = self.calcGuess(newInitial, self.alhpa, self.phi, self.psi, self.A, self.n, self.dividends, self.fees, self.divtaxes)
+            if abs(newGuess-highGuess) > abs(newGuess-lowGuess):
+                highInitial = newInitial
+            else:
+                lowInitial = newInitial
+            # precision down to 1/1000 of a cent.  We can change this precision to improve performance
+            print(newGuess-self.C)
+            if newGuess - self.C < .00001:
+                return newGuess
+
 
 '''
 reverse_compund(A,alpha,infl,target) -> <int>

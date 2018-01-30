@@ -3,6 +3,7 @@ pages:
     - Calculator: calculator.md
     - Index Fund Application: index.md
     - Mutual Fund: mutual.md
+    - Home Made Annuity: annuity.md
 extra_javascript:
       - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML
 markdown_extensions:
