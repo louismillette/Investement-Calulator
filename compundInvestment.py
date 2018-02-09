@@ -110,8 +110,7 @@ annuity(A, alpha, infl, CGtaxes, dividends, divtaxes, fees, n,comma = True) -> <
     n:  The amount of time compounding (number of periods)
     infl:  A function that takes one argument, time, and gives back how much inflation is that period
     CGtaxes: the nominal tax rate on each contribution (to be given in base year dollars) when removed
-    divtaxes: tax rate on dividends earned in each period. function of period (n), optional argument t:
-              total dividends being paid on, and optional argument inn: amount of other income in this period
+    divtaxes: function of a: amount of money in base year dollars.  Returns taxes in base year dollars
     fees: function that takes time, and returns fee percent in that period.
     inflMultiplier: (list of int) product of inflations up to the length of the list for each point in the list.
                     first will be I1 2nd with be I1*I2, and last will be I1*I2*...*In.
@@ -126,67 +125,60 @@ annuity(A, alpha, infl, CGtaxes, dividends, divtaxes, fees, n,comma = True) -> <
       acts as a function, executing appropriate functions internally and setting the result
 '''
 class Annuity():
-    def __init__(self, P, alpha, dividends, n, infl, CGtaxes, divtaxes):
+    def __init__(self, P, alpha, dividends, n, infl, CGtaxes, divtaxes, fees):
         # create class variables
-        self.alhpa = alpha
+        self.alpha = alpha
         self.dividends = dividends
         self.n = n
         self.infl = infl
         self.CGtaxes = CGtaxes
         self.divtaxes = divtaxes
+        self.fees = fees
         # generate psi/phi
-        self.psi = [1]
-        self.phi = [1]
-        for i in range(1,n+1):
-            self.psi.append(self.psi[i-1]*alpha[i])
-        for i in range(1,n+1):
-            self.phi.append(self.phi[i-1]*infl[i])
+        self.phi = [infl(0)]
+        for i in range(1,n):
+            self.phi.append(self.phi[i-1]*infl(i))
         # generate A, the amount to take out every time before inflation
         self.A = P
         for i in range(20):
             # 20 is arbitrary, simply a measure of accuracy
             self.A = P + CGtaxes(self.A)
-        # Generate C, the RHS of the equation
-        self.C = self.calcConst(self.A, self.phi, self.psi, n)
 
-    # calculates the constant of the equation (RHS), that wont change.
-    # we'll try to make the LHS match it
-    def calcConst(self, A, phi, psi, n):
-        c = sum([A*phi[i]/psi[i] for i in range(1,n+1)])
-        return c
-
-    # takes ANR (our guess at the present vvalue of the anuity) and spits out LHS of the equation
-    # ANR is perfect guess if it equals C exactly
-    def calcGuess(self,ANR, alpha, phi, psi, A, n, dividends, fees, divtaxes):
-        S = 0
-        f = [0]
-        d = [0]
-        B = [alpha[1]*ANR]
-        for i in range(1,n+1):
-            B.append(alpha(i)*(B[i-1]-A*phi[i-1]-f[i-1]+d[i-1]))
-            f.append(fees(i)*B[i])
-            d.append(B[i]*dividends(i)-divtaxes(B[i]*dividends(i)/phi[i])*phi[i])
-            S += (f[i]-d[i])/psi[i]
-        return S
     # finds good solution in log time, returns that solution
     # we'll take advantage of the strictly increaseing nature of the LHS function
     # our guess's will take O(nlogm) for m "level of percision"
     def gen_annuity(self):
-        lowInitial = .01 # a reasonable lowest guess of the anuitys value
-        highInitial = self.A * self.n * 10 # 10 times how much we're taking out.  Very high.
-        lowGuess = self.calcGuess(lowInitial, self.alhpa, self.phi, self.psi, self.A, self.n, self.dividends, self.fees, self.divtaxes)
-        highGuess = self.calcGuess(highInitial, self.alhpa, self.phi, self.psi, self.A, self.n, self.dividends, self.fees, self.divtaxes)
+        lowInitial = self.A/2  # a reasonable lowest guess of the anuitys value
+        highInitial = self.A * self.n * 10  # 10 times how much we're taking out.  Very high.
+        lowGuess = self.checkAnnuityValue(lowInitial)
+        highGuess = self.checkAnnuityValue(highInitial)
+        count = 0
         while 1:
-            newInitial = (highInitial + lowInitial)/2
-            newGuess = self.calcGuess(newInitial, self.alhpa, self.phi, self.psi, self.A, self.n, self.dividends, self.fees, self.divtaxes)
-            if abs(newGuess-highGuess) > abs(newGuess-lowGuess):
-                highInitial = newInitial
-            else:
+            count += 1
+            newInitial = (highInitial + lowInitial) / 2
+            newGuess = self.checkAnnuityValue(newInitial)
+            if newGuess <= 0 <= highGuess:
                 lowInitial = newInitial
+            else:
+                highInitial = newInitial
             # precision down to 1/1000 of a cent.  We can change this precision to improve performance
-            print(newGuess-self.C)
-            if newGuess - self.C < .00001:
-                return newGuess
+            if abs(newGuess) < .01:
+                print(count)
+                return newInitial
+
+    # uses clas sprovided methods to check that the value of the lump sum annuity is truely 0 after the appropriate period
+    def checkAnnuityValue(self, ANR):
+        balance = ANR
+        for period in range(n):
+            balance *= self.alpha(period) # first apply growth
+            div = (self.dividends(period) - 1) * balance
+            div_tax = self.divtaxes(div/self.phi[period])*self.phi[period]
+            fee = (self.fees(balance) - 1) * balance
+            A = self.A * self.phi[period]
+            balance = balance - fee - A - div_tax + div
+        return balance
+
+
 
 
 '''
@@ -262,4 +254,23 @@ val = reverse_compund(A = contribution, alpha = IR, target=5000000, infl = infl)
 print(val)
 '''
 if __name__ == '__main__':
-    print(buildFund({'2015':1.035, '2016':1.052, '2017':1.058, '2014':1.045, '2013':1.057, '2008':1.03, '1988':1.059}))
+    # print(buildFund({'2015':1.035, '2016':1.052, '2017':1.058, '2014':1.045, '2013':1.057, '2008':1.03, '1988':1.059}))
+    P = 60000
+    n = 40
+    def alpha(t):
+        return 1.05
+    def dividends(t):
+        return 1.02
+    def infl(t):
+        return 1.015
+    def CGtaxes(a):
+        return 1000 # we're just taxin at 1000, flat tax
+    def divtaxes(a):
+        return 100
+    def fees(n):
+        return 1.005
+    A = Annuity(P, alpha, dividends, n, infl, CGtaxes, divtaxes,fees)
+    pv = A.gen_annuity()
+    print('[+] present value of annuity: {}'.format(pv))
+    leftover = A.checkAnnuityValue(pv)
+    print('[+] ending balance of annuity {} (ideally, this is 0)'.format(leftover))

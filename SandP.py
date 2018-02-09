@@ -460,7 +460,7 @@ def Multiplier(data, state, incomebracket, fee=None, title=None):
             return 1-(fee/100)
         else:
             return 1-.0005 #typical vangaurd fee
-    def divtaxes(n):
+    def divtaxes(n,t,multiplier):
         if state == "Texas":
             if incomebracket == "middle":
                 return 1.15
@@ -546,7 +546,7 @@ def CompundMultiplier(allData, n, state="Texas", incomebracket="middle", fee=Non
             return data[n - 1]['interest']
     def infl(n, data):
         return data[n - 1]['inflation']
-    def CGtaxes(s,e,n):
+    def CGtaxes(s,t,multiplier):
         if state == "Texas":
             if incomebracket == "middle":
                 return 1.15
@@ -557,7 +557,7 @@ def CompundMultiplier(allData, n, state="Texas", incomebracket="middle", fee=Non
                 return 1.2415
             elif incomebracket == "high":
                 return 1.361
-    def CGtaxes401(s,e,n):
+    def CGtaxes401(s,t,multiplier):
         return 1
     def dividends(n, data):
         return data[n-1]['dividend']
@@ -566,7 +566,7 @@ def CompundMultiplier(allData, n, state="Texas", incomebracket="middle", fee=Non
             return 1-(fee/100)
         else:
             return 1-.0005 #typical vangaurd fee
-    def divtaxes(n):
+    def divtaxes(n,t, multiplier):
         if state == "Texas":
             if incomebracket == "middle":
                 return 1.15
@@ -577,36 +577,36 @@ def CompundMultiplier(allData, n, state="Texas", incomebracket="middle", fee=Non
                 return 1.2415
             elif incomebracket == "high":
                 return 1.361
-    def divtaxes401(n):
+    def divtaxes401(n,t,multiplier):
         return 1
     x, m1, m2, m3, m4, m5, m6 = [], [], [], [], [], [], []
     for set in dataSets:
         print('Applying new set')
         inflCumProd = list(np.cumprod([float(ele['inflation']) for ele in set]))
         yearfrm = datetime(year=set[0]['year'], month=1, day=1)
-        coef_good = Optimize.qn(set,minmax="Max").minimize()
-        coef_bad = Optimize.qn(set,minmax="Min").minimize()
-        print(coef_good,coef_bad)
-        multiplier1 = cinv.compund(sudodec(A,inflCumProd),
-                                  sudodec(alphaMix,set, coef=coef_good, datalength=n),
-                                  sudodec(infl,set),
-                                  CGtaxes, sudodec(dividends,set),
-                                  divtaxes, fees, n, comma=False)
-        multiplier2 = cinv.compund(sudodec(A,inflCumProd),
-                                  sudodec(alphaMix,set, coef=coef_bad, datalength=n),
-                                  sudodec(infl,set),
-                                  CGtaxes, sudodec(dividends,set),
-                                  divtaxes, fees, n,comma = False)
-        multiplier3 = cinv.compund(sudodec(A,inflCumProd),
-                                  sudodec(alphaMix,set, coef=coef_good, datalength=n),
-                                  sudodec(infl,set),
-                                  CGtaxes401, sudodec(dividends,set),
-                                  divtaxes401, fees, n, comma=False)
-        multiplier4 = cinv.compund(sudodec(A,inflCumProd),
-                                  sudodec(alphaMix,set, coef=coef_bad, datalength=n),
-                                  sudodec(infl,set),
-                                  CGtaxes401, sudodec(dividends,set),
-                                  divtaxes401, fees, n,comma = False)
+        # coef_good = Optimize.qn(set,minmax="Max").minimize()
+        # coef_bad = Optimize.qn(set,minmax="Min").minimize()
+        # print(coef_good,coef_bad)
+        # multiplier1 = cinv.compund(sudodec(A,inflCumProd),
+        #                           sudodec(alphaMix,set, coef=coef_good, datalength=n),
+        #                           sudodec(infl,set),
+        #                           CGtaxes, sudodec(dividends,set),
+        #                           divtaxes, fees, n, comma=False)
+        # multiplier2 = cinv.compund(sudodec(A,inflCumProd),
+        #                           sudodec(alphaMix,set, coef=coef_bad, datalength=n),
+        #                           sudodec(infl,set),
+        #                           CGtaxes, sudodec(dividends,set),
+        #                           divtaxes, fees, n,comma = False)
+        # multiplier3 = cinv.compund(sudodec(A,inflCumProd),
+        #                           sudodec(alphaMix,set, coef=coef_good, datalength=n),
+        #                           sudodec(infl,set),
+        #                           CGtaxes401, sudodec(dividends,set),
+        #                           divtaxes401, fees, n, comma=False)
+        # multiplier4 = cinv.compund(sudodec(A,inflCumProd),
+        #                           sudodec(alphaMix,set, coef=coef_bad, datalength=n),
+        #                           sudodec(infl,set),
+        #                           CGtaxes401, sudodec(dividends,set),
+        #                           divtaxes401, fees, n,comma = False)
         multiplier5 = cinv.compund(sudodec(A,inflCumProd),
                                   sudodec(alphaIndex,set),
                                   sudodec(infl,set),
@@ -616,77 +616,73 @@ def CompundMultiplier(allData, n, state="Texas", incomebracket="middle", fee=Non
                                   sudodec(alphaIndex,set),
                                   sudodec(infl,set),
                                    CGtaxes401, sudodec(dividends, set),
-                                   divtaxes401, fees, n,comma = False)
+                                   divtaxes401, fees, n,comma=False)
         x.append(yearfrm)
-        m1.append(multiplier1)
-        m2.append(multiplier2)
-        m3.append(multiplier3)
-        m4.append(multiplier4)
+        # m1.append(multiplier1)
+        # m2.append(multiplier2)
+        # m3.append(multiplier3)
+        # m4.append(multiplier4)
         m5.append(multiplier5)
         m6.append(multiplier6)
-    print(m1)
-    print(m2)
-    print(m5)
-    print([ele.year for ele in x])
-    plt = Plot()
-    plt.LinePlotInterval(y=[
-        {
-            'x':[ele.year for ele in x],
-            'upper': m1,
-            'lower': m2,
-            'data':m5,
-            'name': 'Safe+Index',
-            'fillcolor': 'rgba(255,0,0,.4)',
-            'color': 'rgb(0,0,0)'
-        },
-    ],
-    # yreg=[
+    # plt = Plot()
+    # plt.LinePlotInterval(y=[
     #     {
     #         'x':[ele.year for ele in x],
-    #         'data':m1,
-    #         'mode':'lines',
-    #         'name':'Upper',
-    #         'color':'rgb(255,0,0)'
-    #     },
-    #     {
-    #         'x': [ele.year for ele in x],
-    #         'data': m2,
-    #         'mode': 'lines',
-    #         'name': 'Lower',
-    #         'color': 'rgb(255,0,0)'
+    #         'upper': m1,
+    #         'lower': m2,
+    #         'data':m5,
+    #         'name': 'Safe+Index',
+    #         'fillcolor': 'rgba(255,0,0,.4)',
+    #         'color': 'rgb(0,0,0)'
     #     },
     # ],
-    xaxis='Year',yaxis='Multiplier', title='40 Year Safe+Index Multiplier', filename='40 Year Safe+Index Multiplier')
-    time.sleep(1)
-    plt.LinePlotInterval(y=[
-        {
-            'x': [ele.year for ele in x],
-            'upper': m3,
-            'lower': m4,
-            'data': m6,
-            'name': 'Safe + Index',
-            'fillcolor': 'rgba(0,0,255,.4)',
-            'color': 'rgb(0,0,0)'
-        },
-    ],
-    # yreg=[
-    #     {
-    #         'x':[ele.year for ele in x],
-    #         'data':m3,
-    #         'mode':'lines',
-    #         'name':'Upper',
-    #         'color':'rgb(0,0,255)'
-    #     },
+    # # yreg=[
+    # #     {
+    # #         'x':[ele.year for ele in x],
+    # #         'data':m1,
+    # #         'mode':'lines',
+    # #         'name':'Upper',
+    # #         'color':'rgb(255,0,0)'
+    # #     },
+    # #     {
+    # #         'x': [ele.year for ele in x],
+    # #         'data': m2,
+    # #         'mode': 'lines',
+    # #         'name': 'Lower',
+    # #         'color': 'rgb(255,0,0)'
+    # #     },
+    # # ],
+    # xaxis='Year',yaxis='Multiplier', title='40 Year Safe+Index Multiplier', filename='40 Year Safe+Index Multiplier')
+    # time.sleep(1)
+    # plt.LinePlotInterval(y=[
     #     {
     #         'x': [ele.year for ele in x],
-    #         'data': m4,
-    #         'mode': 'lines',
-    #         'name': 'Lower',
-    #         'color': 'rgb(0,0,255)'
+    #         'upper': m3,
+    #         'lower': m4,
+    #         'data': m6,
+    #         'name': 'Safe + Index',
+    #         'fillcolor': 'rgba(0,0,255,.4)',
+    #         'color': 'rgb(0,0,0)'
     #     },
     # ],
-    xaxis='Year',yaxis='Multiplier', title='40 Year 401k Safe+Index Multiplier', filename='40 Year 401k Safe+Index Multiplier')
-    plt.Histogram(m6,title="Index Multiplier 401k", xaxis="Observations", yaxis="Frequency", exp=True, filename="Index Multiplier 401k")
+    # # yreg=[
+    # #     {
+    # #         'x':[ele.year for ele in x],
+    # #         'data':m3,
+    # #         'mode':'lines',
+    # #         'name':'Upper',
+    # #         'color':'rgb(0,0,255)'
+    # #     },
+    # #     {
+    # #         'x': [ele.year for ele in x],
+    # #         'data': m4,
+    # #         'mode': 'lines',
+    # #         'name': 'Lower',
+    # #         'color': 'rgb(0,0,255)'
+    # #     },
+    # # ],
+    # xaxis='Year',yaxis='Multiplier', title='40 Year 401k Safe+Index Multiplier', filename='40 Year 401k Safe+Index Multiplier')
+    # plt.Histogram(m6,title="Index Multiplier 401k", xaxis="Observations", yaxis="Frequency", exp=True, filename="Index Multiplier 401k")
 
     # print("Using the old rates: {}\n".format(old), "Using the new rates: {}".format(new))
 

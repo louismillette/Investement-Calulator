@@ -95,7 +95,7 @@ Instead of trying to solve it explicitly, because of the complexity, the proper 
 
 I've written out the general form of the solution algorithm in sudo-python.
 
-## Algorithum
+## Algorithm
 
 ```
 # first, calculate phi and psi (doable in o(n) time for number of periods), hold on to them
@@ -136,3 +136,16 @@ def function3:
         if newGuess - C < .00001:
             return newGuess
 ```
+
+# The Quick and Easy Way
+
+Wow math sucks a lot.  This is a cool formula, but it's abstract; I certainly don't have a real world interpretation of the constant C nor the function \( \Phi(a_{n}) \).  After thinking about it, I decided there's a much simpler way to do this.  The function used to logarithmically pick a good solution to the LHS of the equation above can be repurposed to find the root of a recursively defined function that finds the value of the annuity at time i.  This is the same function from the general model:
+
+$$ s_{2} = (a_{2} \cdot \alpha_{1} + d_{1} - f_{1} - A \cdot I_{1}) \cdot \alpha_{2} + d_{2} - f_{2} - A \cdot I_{1} \cdot I_{2} $$
+
+Except re-defined recursively for period i:
+
+$$ s_{i} = \alpha_{i} \cdot s_{i-1} + d_{i} - f_{i} - A_{i} \cdot \phi_{i} $$
+
+\( \psi \) is no longer needed.  When the true value of the annuity is correct, \( s_{n} = 0 \) will hold.  Let this new recursively defined objective function of \( a_{n} \) be known as \( f(a_{n}) \).  Fortunately, f() is strictly increasing; the more one invests the more they receive (always true, unless somehow an investment was so bad it put its shareholders in debt). Guessing the \( a_{n} \) that satisfies this is just as easy as finding the \( a_{n} \) thats satisfies \( \Phi(a_{n}) = C \).
+

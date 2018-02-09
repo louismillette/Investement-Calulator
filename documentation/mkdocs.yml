@@ -1,4 +1,4 @@
-site_name: Compound Investement Calculator
+site_name: Compound Investment Calculator
 pages:
     - Calculator: calculator.md
     - Index Fund Application: index.md
